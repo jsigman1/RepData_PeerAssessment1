@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>steps                date          interval</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<p>#Read and load Data
+activityData &lt;- read.csv(&ldquo;activity.csv&rdquo;, header = TRUE, sep = &ldquo;,&rdquo;, na.strings = &ldquo;NA&rdquo;)
+#Show Data summary
+summary(activityData)</p>
+
+<h1>steps                date          interval</h1>
+
+<p>#Min.   :  0.00   2012-10-01:  288   Min.   :   0.0<br/>
+#1st Qu.:  0.00   2012-10-02:  288   1st Qu.: 588.8<br/>
+#Median :  0.00   2012-10-03:  288   Median :1177.5<br/>
+#Mean   : 37.38   2012-10-04:  288   Mean   :1177.5<br/>
+#3rd Qu.: 12.00   2012-10-05:  288   3rd Qu.:1766.2<br/>
+#Max.   :806.00   2012-10-06:  288   Max.   :2355.0<br/>
+#NA&#39;s   :2304     (Other)   :15840<br/>
+#Reformat
+activityData$date &lt;- as.Date(activityData$date, format = &ldquo;%Y-%m-%d&rdquo;)
+activityData$interval &lt;- factor(activityData$interval)
+#Ignore missing numbers
+NA_index &lt;- is.na(as.character(activityData$steps))
+activityData_no_NA &lt;- activityData[!NA_index,]
+head(activityData_no_NA)</p>
+
+<h1>steps       date interval</h1>
+
+<p>#289     0 2012-10-02        0
+#290     0 2012-10-02        5
+#291     0 2012-10-02       10
+#292     0 2012-10-02       15
+#293     0 2012-10-02       20
+#294     0 2012-10-02       25
+#Daily steps
+DailySteps &lt;- aggregate(steps ~ date, data = activityData_no_NA, sum)
+colnames(DailySteps) &lt;- c(&ldquo;date&rdquo;, &ldquo;steps&rdquo;)
+#Generate histogram of daily steps
+hist(as.numeric(DailySteps$steps), breaks = 20, col = &ldquo;purple&rdquo;, xlab = &ldquo;Number of Steps&rdquo;, main= &ldquo;Histogram of Daily Step Total&rdquo;)
+#Mean of daily steps
+mean(DailySteps$steps)
+#[1] 10766.19
+#Median daily steps
+median(DailySteps$steps)
+#[1] 10765
+#Find average steps for all days
+averageSteps &lt;- aggregate(activityData_no_NA$steps, by=list(interval=activityData_no_NA$interval), FUN=mean)
+colnames(averageSteps) &lt;- c(&ldquo;interval&rdquo;, &ldquo;average_steps&rdquo;)
+#Plot average steps
+plot(as.integer(levels(averageSteps$interval)), averageSteps$average_steps, type=&ldquo;l&rdquo;,
+     xlab = &ldquo;Interval&rdquo;, ylab = &ldquo;Step Average&rdquo;, main = &ldquo;Daily Step Pattern&rdquo;,  col =&ldquo;deeppink3&rdquo;)
+#Max activity interval
+MaxActivityAverage &lt;- max(averageSteps$average_steps)
+MaxActivityAverage
+#[1] 206.1698
+#Interval with most steps
+MaxStepInterval&lt;-averageSteps[which.max(averageSteps$average_steps),]$interval
+MaxStepInterval
+#[1] 835
+#288 Levels: 0 5 10 15 20 25 30 35 40 45 50 55 100 105 110 115 120 125 130 135 &hellip; 2355
+#Fill in missing values
+NA_index &lt;- which(is.na(as.character(activityData$steps)))
+DataWhole &lt;- activityData
+#Use interval mean to fill in data
+DataWhole[NA_index, ]$steps&lt;-unlist(lapply(NA_index, FUN=function(NA_index){
+  averageSteps[activityData[NA_index,]$interval==averageSteps$interval,]$average_steps
+}))
+#Check data
+summary(DataWhole)
+#steps             date               interval<br/>
+#Min.   :  0.00   Min.   :2012-10-01   0      :   61<br/>
+#1st Qu.:  0.00   1st Qu.:2012-10-16   5      :   61<br/>
+#Median :  0.00   Median :2012-10-31   10     :   61<br/>
+#Mean   : 37.38   Mean   :2012-10-31   15     :   61<br/>
+#3rd Qu.: 27.00   3rd Qu.:2012-11-15   20     :   61<br/>
+#Max.   :806.00   Max.   :2012-11-30   25     :   61<br/>
+#(Other):17202 
+#Make histogram of complete data set
+DailyStepsWhole &lt;- aggregate(steps ~ date, data = DataWhole, sum)
+colnames(DailyStepsWhole) &lt;- c(&ldquo;date&rdquo;, &ldquo;steps&rdquo;)
+hist(as.numeric(DailyStepsWhole$steps), breaks = 20, col = &ldquo;seagreen&rdquo;, xlab = &ldquo;Number of Steps&rdquo;, main= &ldquo;Complete data daily steps histogram&rdquo;)
+#Mean of daily steps with complete data
+mean(DailyStepsWhole$steps)
+#[1] 10766.19
+#Median of daily steps with complete data
+median(DailyStepsWhole$steps)
+#[1] 10766.19
+#Determine differences between weekdays and weekends
+DataWhole$day &lt;- as.factor(weekdays(DataWhole$date))
+DataWhole$is_weekday &lt;- ifelse(!(DataWhole$day %in% c(&ldquo;Saturday&rdquo;,&ldquo;Sunday&rdquo;)), TRUE, FALSE)
+#Average weekday steps
+WeekdayData &lt;- DataWhole[DataWhole$is_weekday,]
+WeekdayIntervalSteps &lt;- aggregate(WeekdayData$steps, by=list(interval=WeekdayData$interval), FUN=mean)
+#Average weekend steps
+WeekendData &lt;- DataWhole[!DataWhole$is_weekday,]
+WeekendIntervalSteps &lt;- aggregate(WeekendData$steps, by=list(interval=WeekendData$interval), FUN=mean)
+#Add column labels
+colnames(WeekdayIntervalSteps) &lt;- c(&ldquo;interval&rdquo;, &ldquo;average_steps&rdquo;)
+colnames(WeekendIntervalSteps) &lt;- c(&ldquo;interval&rdquo;, &ldquo;average_steps&rdquo;)
+#Label Column
+WeekdayIntervalSteps$day &lt;- &ldquo;Weekday&rdquo;
+WeekendIntervalSteps$day &lt;- &ldquo;Weekend&rdquo;
+#Bind data
+FullWeekData&lt;- rbind(WeekendIntervalSteps, WeekdayIntervalSteps)
+FullWeekData$day &lt;- as.factor(FullWeekData$day)
+#Plot Weekday and Weekend Data
+library(lattice)
+xyplot(average_steps ~  interval | day, data = FullWeekData, layout = c(1,2), type =&ldquo;l&rdquo;, ylab=&ldquo;Number of Steps&rdquo;)</p>
+
+</body>
+
+</html>
